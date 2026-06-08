@@ -7,40 +7,59 @@ import third_wave
 # 設定頁面資訊
 st.set_page_config(page_title="心理師臨床助理：多學派分析", page_icon="🧠", layout="wide")
 
-# === 初始化 Session State ===
-# 保留逐字稿內容
+# 初始化 Session State，保留輸入內容，切換頁面時不會消失
 if "transcript" not in st.session_state:
     st.session_state.transcript = ""
+if "chief_complaint" not in st.session_state:
+    st.session_state.chief_complaint = ""
+if "api_key" not in st.session_state:
+    st.session_state.api_key = ""
+if "model_choice" not in st.session_state:
+    st.session_state.model_choice = "gemini-3.5-flash"
 
-# 保留個案基本資料
-if "patient_info" not in st.session_state:
-    st.session_state.patient_info = {}
-
-# === 側邊欄 (左側) 介面 ===
 st.sidebar.title("🧠 多學派分析系統")
 
-# 1. 個案基本資料 (使用折疊面板保持側欄整潔)
-st.sidebar.header("👤 個案基本資料")
-with st.sidebar.expander("點擊展開/收合個案資料", expanded=False):
-    p_name = st.text_input("姓名或代稱", value=st.session_state.patient_info.get("name", ""))
-    p_age = st.number_input("年紀", min_value=0, max_value=120, value=st.session_state.patient_info.get("age", 30))
-    p_gender = st.selectbox("性別", ["男", "女", "多元性別", "不願透露"], index=0)
-    p_job = st.text_input("職業/工作", value=st.session_state.patient_info.get("job", ""))
-    p_marriage = st.selectbox("婚姻狀態", ["未婚", "已婚", "離婚", "喪偶", "交往中"], index=0)
-    p_economy = st.text_input("經濟狀況", placeholder="例如：穩定、負債、待業中...", value=st.session_state.patient_info.get("economy", ""))
-    p_history = st.text_area("病史/過去諮商史", placeholder="簡述身心科就診或諮商紀錄...", value=st.session_state.patient_info.get("history", ""))
-    
-    # 即時更新 Session State
-    st.session_state.patient_info = {
-        "name": p_name, "age": p_age, "gender": p_gender,
-        "job": p_job, "marriage": p_marriage, "economy": p_economy,
-        "history": p_history
-    }
+# ================= 新增：API 與模型設定區 =================
+st.sidebar.subheader("⚙️ 系統設定")
+api_key_input = st.sidebar.text_input(
+    "API Key", 
+    value=st.session_state.api_key, 
+    type="password", 
+    placeholder="請輸入您的 API Key"
+)
+model_input = st.sidebar.selectbox(
+    "選擇模型", 
+    ["gemini-3.5-flash", "gemini-1.5-pro", "gemini-1.5-flash"], 
+    index=0
+)
+
+# 更新 Session State
+if api_key_input != st.session_state.api_key:
+    st.session_state.api_key = api_key_input
+if model_input != st.session_state.model_choice:
+    st.session_state.model_choice = model_input
 
 st.sidebar.markdown("---")
 
-# 2. 治療學派切換
-st.sidebar.header("🔍 臨床視角")
+# ================= 新增：主訴填寫區 =================
+st.sidebar.subheader("📋 案主基本資訊")
+chief_complaint_input = st.sidebar.text_area(
+    "主訴 (Chief Complaint)", 
+    value=st.session_state.chief_complaint, 
+    height=150, 
+    placeholder="請在此簡述個案的主訴或背景資訊..."
+)
+
+# 更新 Session State
+if chief_complaint_input != st.session_state.chief_complaint:
+    st.session_state.chief_complaint = chief_complaint_input
+
+st.sidebar.markdown("---")
+
+# ================= 學派切換區 =================
+st.sidebar.markdown("請選擇要使用的臨床視角：")
+
+# 側邊欄切換按鈕
 school_choice = st.sidebar.radio(
     "治療學派切換",
     ["1. 認知行為治療 (CBT)", 
@@ -49,9 +68,9 @@ school_choice = st.sidebar.radio(
      "4. 第三波療法 (Third-Wave)"]
 )
 
-st.sidebar.info("💡 系統提示：設定好個案資料後，在主畫面輸入逐字稿即可分析。")
+st.sidebar.info("💡 系統提示：請在左側填寫 API 與主訴，在主畫面輸入逐字稿後，點選上方按鈕切換不同學派的判讀視角。")
 
-# === 主畫面通用輸入區 ===
+# ================= 主畫面：逐字稿輸入區 =================
 st.title("臨床逐字稿輸入區")
 transcript_input = st.text_area(
     "請貼上醫病對談逐字稿：", 
@@ -60,13 +79,13 @@ transcript_input = st.text_area(
     placeholder="在此貼上逐字稿..."
 )
 
-# 更新逐字稿 Session State
+# 更新 Session State
 if transcript_input != st.session_state.transcript:
     st.session_state.transcript = transcript_input
 
 st.markdown("---")
 
-# === 根據側邊欄選擇，載入對應的模組 ===
+# 根據側邊欄選擇，載入對應的模組
 if school_choice.startswith("1"):
     cbt.render_page()
 elif school_choice.startswith("2"):
