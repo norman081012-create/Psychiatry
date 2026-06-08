@@ -7,9 +7,17 @@ def render_page():
     
     if st.button("執行動力學分析", type="primary"):
         if st.session_state.transcript:
-            with st.spinner("正在解析防衛機轉與潛意識動力..."):
-                result = process_transcript(st.session_state.transcript, "Psychodynamic")
-                st.success("分析完成！")
-                st.markdown(result)
+            with st.spinner("正在結合個案資料進行綜合分析..."):
+                report, summary = process_transcript(
+                    st.session_state.transcript, 
+                    "Psychodynamic", 
+                    st.session_state.patient_info
+                )
+                
+                st.success("分析與匯總完成！")
+                
+                st.markdown(report)
+                st.markdown("---")
+                st.markdown(summary)
         else:
             st.warning("請先在上方輸入逐字稿！")
