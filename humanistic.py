@@ -7,9 +7,17 @@ def render_page():
     
     if st.button("執行人本存在分析", type="primary"):
         if st.session_state.transcript:
-            with st.spinner("正在評估自我概念與存在焦慮..."):
-                result = process_transcript(st.session_state.transcript, "Humanistic")
-                st.success("分析完成！")
-                st.markdown(result)
+            with st.spinner("正在結合個案資料進行綜合分析..."):
+                report, summary = process_transcript(
+                    st.session_state.transcript, 
+                    "Humanistic", 
+                    st.session_state.patient_info
+                )
+                
+                st.success("分析與匯總完成！")
+                
+                st.markdown(report)
+                st.markdown("---")
+                st.markdown(summary)
         else:
             st.warning("請先在上方輸入逐字稿！")
