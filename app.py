@@ -19,14 +19,7 @@ if "patient_info" not in st.session_state:
 # === 側邊欄 (左側) 介面 ===
 st.sidebar.title("🧠 多學派分析系統")
 
-# 1. 系統與 API 設定
-st.sidebar.header("⚙️ 系統設定")
-api_key = st.sidebar.text_input("輸入 API Key", type="password", placeholder="請輸入您的金鑰 (如 OpenAI API Key)")
-ai_model = st.sidebar.selectbox("選擇 AI 模型", ["gpt-4o", "gpt-3.5-turbo", "claude-3-opus", "gemini-1.5-pro"])
-
-st.sidebar.markdown("---")
-
-# 2. 個案基本資料 (使用折疊面板保持側欄整潔)
+# 1. 個案基本資料 (使用折疊面板保持側欄整潔)
 st.sidebar.header("👤 個案基本資料")
 with st.sidebar.expander("點擊展開/收合個案資料", expanded=False):
     p_name = st.text_input("姓名或代稱", value=st.session_state.patient_info.get("name", ""))
@@ -46,7 +39,7 @@ with st.sidebar.expander("點擊展開/收合個案資料", expanded=False):
 
 st.sidebar.markdown("---")
 
-# 3. 治療學派切換
+# 2. 治療學派切換
 st.sidebar.header("🔍 臨床視角")
 school_choice = st.sidebar.radio(
     "治療學派切換",
@@ -56,8 +49,7 @@ school_choice = st.sidebar.radio(
      "4. 第三波療法 (Third-Wave)"]
 )
 
-st.sidebar.info("💡 系統提示：設定好模型與個案資料後，在主畫面輸入逐字稿即可分析。")
-
+st.sidebar.info("💡 系統提示：設定好個案資料後，在主畫面輸入逐字稿即可分析。")
 
 # === 主畫面通用輸入區 ===
 st.title("臨床逐字稿輸入區")
@@ -75,7 +67,6 @@ if transcript_input != st.session_state.transcript:
 st.markdown("---")
 
 # === 根據側邊欄選擇，載入對應的模組 ===
-# 註：未來串接真實 LLM 時，你可以將 st.session_state.patient_info, api_key, ai_model 傳入這些模組中
 if school_choice.startswith("1"):
     cbt.render_page()
 elif school_choice.startswith("2"):
