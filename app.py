@@ -10,8 +10,8 @@ st.set_page_config(page_title="心理師臨床助理：多學派分析", page_ic
 # 初始化 Session State，保留輸入內容，切換頁面時不會消失
 if "transcript" not in st.session_state:
     st.session_state.transcript = ""
-if "chief_complaint" not in st.session_state:
-    st.session_state.chief_complaint = ""
+if "patient_info" not in st.session_state:
+    st.session_state.patient_info = ""
 if "api_key" not in st.session_state:
     st.session_state.api_key = ""
 if "model_choice" not in st.session_state:
@@ -19,7 +19,7 @@ if "model_choice" not in st.session_state:
 
 st.sidebar.title("🧠 多學派分析系統")
 
-# ================= 新增：API 與模型設定區 =================
+# ================= API 與模型設定區 =================
 st.sidebar.subheader("⚙️ 系統設定")
 api_key_input = st.sidebar.text_input(
     "API Key", 
@@ -41,18 +41,18 @@ if model_input != st.session_state.model_choice:
 
 st.sidebar.markdown("---")
 
-# ================= 新增：主訴填寫區 =================
+# ================= 主訴填寫區（已修正變數為 patient_info） =================
 st.sidebar.subheader("📋 案主基本資訊")
-chief_complaint_input = st.sidebar.text_area(
+patient_info_input = st.sidebar.text_area(
     "主訴 (Chief Complaint)", 
-    value=st.session_state.chief_complaint, 
+    value=st.session_state.patient_info, 
     height=150, 
     placeholder="請在此簡述個案的主訴或背景資訊..."
 )
 
 # 更新 Session State
-if chief_complaint_input != st.session_state.chief_complaint:
-    st.session_state.chief_complaint = chief_complaint_input
+if patient_info_input != st.session_state.patient_info:
+    st.session_state.patient_info = patient_info_input
 
 st.sidebar.markdown("---")
 
