@@ -9,8 +9,7 @@ def clean_json_string(raw_string):
     cleaned = raw_string.strip()
     if cleaned.startswith("```json"):
         cleaned = cleaned[7:]
-    elif cleaned.startswith("
-```"):
+    elif cleaned.startswith("```"):
         cleaned = cleaned[3:]
     if cleaned.endswith("```"):
         cleaned = cleaned[:-3]
@@ -29,7 +28,6 @@ def render_page():
         st.session_state.cbt_analysis_result = None
 
     # ================= 自動執行分析邏輯 =================
-    # 取消了手動按鈕，改為：只要有逐字稿且尚未產生結果，就自動在背景執行
     if st.session_state.transcript and not st.session_state.cbt_analysis_result:
         with st.spinner("偵測到新逐字稿，AI 正在自動萃取認知扭曲與行為模式..."):
             patient_info = st.session_state.get("patient_info", st.session_state.get("chief_complaint", ""))
