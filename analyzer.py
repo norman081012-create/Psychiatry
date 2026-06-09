@@ -1,6 +1,5 @@
 import streamlit as st
-# 若要串接 Gemini API，請取消下方註解並安裝對應套件 (pip install google-generativeai)
-# import google.generativeai as genai
+import google.generativeai as genai
 
 def process_transcript(transcript, school_type, patient_info=""):
     """將逐字稿與案主資訊組裝成 Prompt，並呼叫 LLM 進行分析"""
@@ -70,21 +69,21 @@ def process_transcript(transcript, school_type, patient_info=""):
     selected_prompt = prompts.get(school_type, "")
 
     # ==========================================
-    # 💡 實際 API 串接區塊 (預設為假回傳值，請自行解開註解實作)
+    # 💡 實際 API 串接區塊 (已解開註解)
     # ==========================================
     
-    # api_key = st.session_state.get("api_key", "")
-    # model_name = st.session_state.get("model_choice", "gemini-3.5-flash")
-    #
-    # if not api_key:
-    #     return "⚠️ 請先在左側欄位輸入 API Key"
-    #
-    # try:
-    #     genai.configure(api_key=api_key)
-    #     model = genai.GenerativeModel(model_name)
-    #     response = model.generate_content(selected_prompt)
-    #     return response.text
-    # except Exception as e:
-    #     return f"呼叫 API 時發生錯誤：{str(e)}"
+    api_key = st.session_state.get("api_key", "")
+    model_name = st.session_state.get("model_choice", "gemini-3.5-flash")
     
-    return f"（此為開發測試模式：已準備好 {school_type} 的 Prompt，請至 analyzer.py 解開 API 串接程式碼即可顯示真實結果。）"
+    if not api_key:
+        return "⚠️ 請先在左側系統設定欄位輸入您的 API Key"
+    
+    try:
+        # 設定 API 金鑰並呼叫 Gemini 模型
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel(model_name)
+        response = model.generate_content(selected_prompt)
+        return response.text
+        
+    except Exception as e:
+        return f"呼叫 API 時發生錯誤，請檢查您的 API Key 是否正確或網路狀態：\n\n{str(e)}"
