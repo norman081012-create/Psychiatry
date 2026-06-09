@@ -3,7 +3,6 @@ import json
 from analyzer import process_transcript, generate_formal_report
 
 def clean_json_string(raw_string):
-    """清理 LLM 可能產生的 Markdown 標記，確保能正確解析 JSON"""
     if not raw_string:
         return ""
     cleaned = raw_string.strip()
@@ -27,7 +26,7 @@ def render_page():
     if "cbt_formal_report" not in st.session_state:
         st.session_state.cbt_formal_report = None
 
-    # ================= 頂部：手動執行分析按鈕 (防止畫面卡死) =================
+    # ================= 頂部：手動執行分析按鈕 =================
     if st.button("✨ 請 AI 擷取逐字稿並填入下方表格", type="primary"):
         if not st.session_state.transcript:
             st.warning("⚠️ 請先在上方輸入逐字稿內容！")
@@ -45,7 +44,7 @@ def render_page():
                         st.session_state.cbt_formal_report = None 
                         st.rerun()
 
-    # ================= 動態欄位渲染區 (預設無條件呈現空表) =================
+    # ================= 動態欄位渲染區 =================
     st.markdown("### 🧩 CBT 概念化與橫向比較分析")
     
     scenarios = []
@@ -74,7 +73,6 @@ def render_page():
                             st.session_state.show_cols[i] = False
                             st.rerun()
                     
-                    # 若尚未分析，填入預設提示字；若已分析但無該欄位資料，顯示無
                     default_text = "（等待分析）" if not st.session_state.cbt_analysis_result else "無"
                     
                     st.markdown(f"**認知扭曲：**<br>{scene.get('cognitive_distortion', default_text)}", unsafe_allow_html=True)
@@ -105,7 +103,6 @@ def render_page():
     st.markdown("### 📝 綜合臨床概念化報告")
     st.markdown("基於上述 CBT 情境分析與案主基本資訊，一鍵產出正式報告。")
 
-    # 輸入設定區
     report_col1, report_col2, report_col3 = st.columns([2, 2, 4])
     with report_col1:
         paragraphs = st.number_input("設定段落數", min_value=1, max_value=10, value=4, step=1)
@@ -128,7 +125,6 @@ def render_page():
                     else:
                         st.error(report)
 
-    # 顯示生成的報告
     if st.session_state.cbt_formal_report:
         st.success("報告生成完畢！")
         with st.container(border=True):
