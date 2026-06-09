@@ -27,22 +27,25 @@ def render_page():
     if "cbt_formal_report" not in st.session_state:
         st.session_state.cbt_formal_report = None
 
-    # ================= 自動執行分析邏輯 =================
-    if st.session_state.transcript and not st.session_state.cbt_analysis_result:
-        with st.spinner("偵測到新逐字稿，AI 正在自動萃取認知扭曲與行為模式..."):
-            patient_info = st.session_state.get("patient_info", st.session_state.get("chief_complaint", ""))
-            result = process_transcript(st.session_state.transcript, "CBT", patient_info)
-            
-            if result:
-                if result.startswith("⚠️") or "錯誤" in result:
-                    st.error(result)
-                else:
-                    st.session_state.cbt_analysis_result = result
-                    st.session_state.show_cols = [True, True, True]
-                    st.session_state.cbt_formal_report = None 
-                    st.rerun()
+    # ================= 頂部：手動執行分析按鈕 (防止畫面卡死) =================
+    if st.button("✨ 請 AI 擷取逐字稿並填入下方表格", type="primary"):
+        if not st.session_state.transcript:
+            st.warning("⚠️ 請先在上方輸入逐字稿內容！")
+        else:
+            with st.spinner("AI 正在深度解析逐字稿，這可能需要幾秒鐘，請稍候..."):
+                patient_info = st.session_state.get("patient_info", "")
+                result = process_transcript(st.session_state.transcript, "CBT", patient_info)
+                
+                if result:
+                    if result.startswith("⚠️") or "錯誤" in result:
+                        st.error(result)
+                    else:
+                        st.session_state.cbt_analysis_result = result
+                        st.session_state.show_cols = [True, True, True]
+                        st.session_state.cbt_formal_report = None 
+                        st.rerun()
 
-    # ================= 動態欄位渲染區 (直接無條件呈現) =================
+    # ================= 動態欄位渲染區 (預設無條件呈現空表) =================
     st.markdown("### 🧩 CBT 概念化與橫向比較分析")
     
     scenarios = []
@@ -71,6 +74,7 @@ def render_page():
                             st.session_state.show_cols[i] = False
                             st.rerun()
                     
+                    # 若尚未分析，填入預設提示字；若已分析但無該欄位資料，顯示無
                     default_text = "（等待分析）" if not st.session_state.cbt_analysis_result else "無"
                     
                     st.markdown(f"**認知扭曲：**<br>{scene.get('cognitive_distortion', default_text)}", unsafe_allow_html=True)
@@ -90,20 +94,13 @@ def render_page():
                         st.rerun()
                     st.markdown("<br><br><br><br>", unsafe_allow_html=True)
 
-    # ================= 中段控制：重置與重新分析按鈕 =================
+    # ================= 中段控制：重置按鈕 =================
     st.markdown("---")
-    col_btn1, col_btn2 = st.columns(2)
-    with col_btn1:
-        if st.button("🔄 重置所有欄位 (恢復顯示 A、B、C)"):
-            st.session_state.show_cols = [True, True, True]
-            st.rerun()
-    with col_btn2:
-        if st.button("✨ 重新請 AI 分析逐字稿"):
-            st.session_state.cbt_analysis_result = None
-            st.session_state.cbt_formal_report = None
-            st.rerun()
+    if st.button("🔄 重置所有欄位 (恢復顯示 A、B、C)"):
+        st.session_state.show_cols = [True, True, True]
+        st.rerun()
 
-    # ================= 新增：正式報告生成區 =================
+    # ================= 底部：正式報告生成區 =================
     st.markdown("---")
     st.markdown("### 📝 綜合臨床概念化報告")
     st.markdown("基於上述 CBT 情境分析與案主基本資訊，一鍵產出正式報告。")
@@ -118,7 +115,7 @@ def render_page():
         st.markdown("<br>", unsafe_allow_html=True)
         if st.button("🚀 產生正式心理師報告", use_container_width=True, type="primary"):
             if not st.session_state.cbt_analysis_result:
-                st.warning("請先確保上方已經有 CBT 的情境分析資料！")
+                st.warning("⚠️ 請先點擊上方的「請 AI 擷取逐字稿」按鈕，產生表格資料後再生成報告！")
             else:
                 with st.spinner("正在融合基本資訊與 CBT 概念化，撰寫正式報告中..."):
                     patient_info = st.session_state.get("patient_info", "")
