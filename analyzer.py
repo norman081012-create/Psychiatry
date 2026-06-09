@@ -109,3 +109,36 @@ __TRANSCRIPT__
         
     except Exception as e:
         return f"呼叫 API 時發生錯誤，請檢查您的 API Key 是否正確或網路狀態：\n\n{str(e)}"
+
+# ================= 新增：正式報告生成函式 =================
+def generate_formal_report(patient_info, json_data, paragraphs, words):
+    """根據已有的 JSON 資料與案主資訊，生成正式的心理師報告"""
+    prompt = f"""請扮演一位資深的臨床心理師。請根據以下的「案主基本資訊」以及剛剛由逐字稿萃取出的「CBT 概念化與惡性循環分析結果」，撰寫一份正式的心理諮商個案概念化與治療計畫報告。
+
+【格式與限制要求】
+1. 報告結構必須嚴格分為 {paragraphs} 個段落。
+2. 總字數請控制在約 {words} 字左右。
+3. 語氣必須具備臨床專業度、客觀且溫和。
+4. 報告內容需自然融入案主基本資訊，並綜合提煉 CBT 分析結果中的核心認知扭曲、惡性循環模式及未來建議的介入策略。
+
+【輸入資料】
+案主基本資訊：
+{patient_info}
+
+CBT 擷取出的核心情境分析 (JSON 格式)：
+{json_data}
+"""
+
+    api_key = st.session_state.get("api_key", "")
+    model_name = st.session_state.get("model_choice", "gemini-3.5-flash")
+
+    if not api_key:
+        return "⚠️ 請先在左側系統設定欄位輸入您的 API Key"
+
+    try:
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel(model_name)
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        return f"呼叫 API 時發生錯誤：\n\n{str(e)}"
