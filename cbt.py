@@ -1,6 +1,5 @@
 import streamlit as st
 import json
-# 新增引入 generate_formal_report
 from analyzer import process_transcript, generate_formal_report
 
 def clean_json_string(raw_string):
@@ -10,8 +9,7 @@ def clean_json_string(raw_string):
     cleaned = raw_string.strip()
     if cleaned.startswith("```json"):
         cleaned = cleaned[7:]
-    elif cleaned.startswith("
-```"):
+    elif cleaned.startswith("```"):
         cleaned = cleaned[3:]
     if cleaned.endswith("```"):
         cleaned = cleaned[:-3]
@@ -41,7 +39,6 @@ def render_page():
                 else:
                     st.session_state.cbt_analysis_result = result
                     st.session_state.show_cols = [True, True, True]
-                    # 同時清空舊的報告
                     st.session_state.cbt_formal_report = None 
                     st.rerun()
 
@@ -118,7 +115,7 @@ def render_page():
     with report_col2:
         words = st.number_input("預期總字數", min_value=100, max_value=3000, value=800, step=100)
     with report_col3:
-        st.markdown("<br>", unsafe_allow_html=True) # 透過空行往下推，使按鈕對齊輸入框
+        st.markdown("<br>", unsafe_allow_html=True)
         if st.button("🚀 產生正式心理師報告", use_container_width=True, type="primary"):
             if not st.session_state.cbt_analysis_result:
                 st.warning("請先確保上方已經有 CBT 的情境分析資料！")
